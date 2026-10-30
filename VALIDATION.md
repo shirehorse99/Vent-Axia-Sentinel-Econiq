@@ -6,6 +6,8 @@ The required runtime APIs were checked against Home Assistant 2025.2.0 source: C
 
 A separate hardware trial verified telemetry through the standalone MQTT bridge. The native integration shares its MQTT framing and parser. Native hardware setup and reauthentication are still pending.
 
-Before public release: run HACS validation and hassfest in the target repository, then trial actual HA configuration, authentication, reauthentication, unload/reload and removal, with the standalone bridge stopped. Review compatibility reports before adding further models. This candidate has not been published or installed as a second client.
+GitHub Actions passed the eleven tests on Python 3.13, hassfest and all ten HACS checks. Repository description/topics were completed and the validation run then passed.
+
+Before release: trial actual HA configuration, authentication, reauthentication, unload/reload and removal, with the standalone bridge stopped. Review compatibility reports before adding further models. The candidate source is committed to the owner’s GitHub repository; it has not been installed as a second client or submitted to the HACS default catalogue.
 
 No verified CPU/board temperature endpoint is implemented. Fault-free communications and local traffic counters do not demonstrate thermal safety. No external sensor is required.

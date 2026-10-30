@@ -6,13 +6,13 @@ This connects directly to the unit’s built-in MQTT broker using its saved TLS-
 
 ## Compatibility
 
-The telemetry protocol and authentication were verified on a Sentinel Econiq controller using the standalone bridge. The native HACS wrapper still needs an actual Home Assistant load/unload trial and the repository CI checks before a public release. The live standalone bridge is a separate deployment.
+The telemetry protocol and authentication were verified on a Sentinel Econiq controller using the standalone bridge. Repository CI checks pass. The native HACS wrapper still needs an actual Home Assistant load/unload trial before a release. The live standalone bridge is a separate deployment.
 
 This is **not universal support for every Vent-Axia model**. Legacy Kinetic Advance Wi-Fi modules can use a different raw JSON protocol. An enclosure’s original model name does not establish controller compatibility. Missing CO₂ or filter-life readings are not fabricated; those entities are disabled by default.
 
 ## Installation
 
-After the repository is published, add its URL in HACS → Custom repositories, category Integration. Download it, restart Home Assistant, then add “Vent-Axia Sentinel Econiq (read only)” under Settings → Devices & services.
+For a custom-repository trial, add this repository’s URL in HACS → Custom repositories, category Integration. Download it, restart Home Assistant, then add “Vent-Axia Sentinel Econiq (read only)” under Settings → Devices & services.
 
 Manual installation: copy `custom_components/ventaxia_econiq_readonly` into Home Assistant’s `custom_components` directory and restart Home Assistant. Home Assistant 2025.2 or later is required, with Python 3.13+ and a PSK-enabled OpenSSL build. The configuration form checks the PSK capability without contacting the unit.
 
@@ -50,7 +50,7 @@ Optional energy estimates can use HA’s Integral helper on the reported W senso
 
 ## Development and release checks
 
-Run `python -B -m unittest discover -s tests` for eleven isolated protocol and coordinator-lifecycle checks (the latter use HA stubs). Tests use synthetic payloads and fake streams; they do not connect to a unit. CI also includes HACS validation and hassfest. These workflows have not yet run in the empty target repository. A real HA setup, reauthentication and unload test is required before describing this candidate as release-validated.
+Run `python -B -m unittest discover -s tests` for eleven isolated protocol and coordinator-lifecycle checks (the latter use HA stubs). Tests use synthetic payloads and fake streams; they do not connect to a unit. CI also includes HACS validation and hassfest. GitHub Actions passes the eleven protocol/lifecycle tests, hassfest and HACS validation. The repository has not been submitted to the HACS default catalogue. A real HA setup, reauthentication and unload test is required before describing this candidate as release-validated.
 
 To remove it, delete its config entry, then remove the repository using HACS and restart Home Assistant. Unloading cancels the background task and closes the MQTT socket; it does not change the MVHR’s operating settings.
 
