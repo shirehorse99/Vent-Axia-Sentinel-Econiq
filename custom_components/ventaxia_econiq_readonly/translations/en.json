@@ -1,0 +1,41 @@
+{
+  "title": "Vent-Axia Sentinel Econiq (read only)",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect existing MVHR telemetry",
+        "description": "Use an already configured Wi-Fi unit and its existing TLS credentials. Saving starts one read-only MQTT connection. This integration does not pair the unit, change its settings, or provide an electronics-temperature measurement. Stop the previous add-on first.",
+        "data": {
+          "host": "MVHR hostname or IP address",
+          "port": "MQTT TLS port",
+          "device_id": "Device ID / MQTT topic prefix",
+          "tls_identity": "Saved TLS identity",
+          "tls_psk_hex": "TLS pre-shared key (hexadecimal)",
+          "username": "Device MQTT username (usually blank)",
+          "password": "Device MQTT password (usually blank)",
+          "other_clients_stopped": "I have stopped other clients using this unit"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Update saved TLS credentials",
+        "description": "Supply existing credentials. No pairing or PIN writes are performed. Saving restarts this telemetry client.",
+        "data": {
+          "tls_identity": "Saved TLS identity",
+          "tls_psk_hex": "TLS pre-shared key (hexadecimal)",
+          "other_clients_stopped": "I have stopped other clients using this unit"
+        }
+      }
+    },
+    "error": {
+      "psk_unsupported": "This Home Assistant Python/OpenSSL runtime does not support TLS-PSK. Python 3.13 or later with PSK-enabled OpenSSL is required.",
+      "invalid_host": "Enter the unit hostname or IP address without a URL scheme or path.",
+      "invalid_device_id": "Enter the Bluetooth device ID / MQTT topic prefix using letters, digits, hyphens or underscores.",
+      "invalid_credentials": "Enter the saved TLS identity and nonzero hexadecimal PSK. A Wi-Fi password or PIN is not the TLS key.",
+      "other_clients_running": "Stop the previous add-on or integration using this unit before starting this connection."
+    },
+    "abort": {
+      "already_configured": "This device ID is already configured.",
+      "reauth_successful": "Credentials updated."
+    }
+  }
+}

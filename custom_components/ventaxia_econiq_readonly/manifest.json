@@ -1,0 +1,14 @@
+{
+  "domain": "ventaxia_econiq_readonly",
+  "name": "Vent-Axia Sentinel Econiq (read only)",
+  "codeowners": [
+    "@shirehorse99"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/shirehorse99/Vent-Axia-Sentinel-Econiq",
+  "integration_type": "hub",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/shirehorse99/Vent-Axia-Sentinel-Econiq/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
