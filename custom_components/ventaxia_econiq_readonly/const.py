@@ -1,0 +1,6 @@
+"""Shared integration constants."""
+DOMAIN = "ventaxia_econiq_readonly"
+CONF_DEVICE_ID = "device_id"
+CONF_TLS_IDENTITY = "tls_identity"
+CONF_TLS_PSK = "tls_psk_hex"
+CONF_OTHER_CLIENTS_STOPPED = "other_clients_stopped"
