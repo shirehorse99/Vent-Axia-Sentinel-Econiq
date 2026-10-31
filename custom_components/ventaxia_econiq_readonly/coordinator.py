@@ -14,6 +14,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_USERNAME, CONF_PASSWORD
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.event import async_track_time_interval
+from homeassistant.helpers.storage import Store
+from datetime import timedelta
+from .recovery import RecoveryStatistics
 
 from .const import DOMAIN, CONF_DEVICE_ID, CONF_TLS_IDENTITY, CONF_TLS_PSK
 from .protocol import (
@@ -41,6 +45,10 @@ class EconiqCoordinator(DataUpdateCoordinator):
         self.received_mqtt_bytes = 0
         self.sent_mqtt_bytes = 0
         self.ping_replies = 0
+        self.recovery = RecoveryStatistics()
+        self._store = Store(hass, 1, f"{DOMAIN}.{entry.entry_id}.statistics")
+        self._sample_unsub = None
+        self._last_statistics_save = float("-inf")
         self._last_reported = float("-inf")
         self._task: asyncio.Task | None = None
         self._wire = None
@@ -67,24 +75,41 @@ class EconiqCoordinator(DataUpdateCoordinator):
             "received_mqtt_bytes": self.received_mqtt_bytes,
             "sent_mqtt_bytes": self.sent_mqtt_bytes,
             "ping_replies": self.ping_replies,
+            "recovery": self.recovery.current(self.values, self.connected) | self.recovery.stats(datetime.now(timezone.utc)),
         }
 
     def _notify(self):
         self.async_set_updated_data(self._snapshot())
 
+    async def async_initialize(self):
+        saved = await self._store.async_load()
+        self.recovery.restore(saved, datetime.now(timezone.utc))
+
+    def _sample_recovery(self, now):
+        self.recovery.sample(now, self.values, self.connected)
+        if time.monotonic() - self._last_statistics_save >= 300:
+            self._store.async_delay_save(self.recovery.snapshot, 0)
+            self._last_statistics_save = time.monotonic()
+        self._notify()
+
     def start(self):
         """Run only after configuration and platform setup."""
-        self._notify()
+        self._sample_unsub = async_track_time_interval(self.hass, self._sample_recovery, timedelta(minutes=1))
+        self._sample_recovery(datetime.now(timezone.utc))
         self._task = self.entry.async_create_background_task(
             self.hass, self._run(), f"{DOMAIN} telemetry"
         )
 
     async def async_stop(self):
+        if self._sample_unsub:
+            self._sample_unsub()
+            self._sample_unsub = None
         if self._task:
             self._task.cancel()
             with contextlib.suppress(asyncio.CancelledError):
                 await self._task
         self._task = None
+        await self._store.async_save(self.recovery.snapshot())
 
     async def _receive(self, wire):
         pending = set(range(1, len(self._mapping) + 1))

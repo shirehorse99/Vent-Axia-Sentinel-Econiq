@@ -90,7 +90,7 @@ class ProtocolTests(unittest.IsolatedAsyncioTestCase):
     async def test_each_subscription_is_one_exact_telemetry_topic(self):
         mapping = {f'synthetic/{s.suffix}': s for s in p.SENSORS}
         packets = list(p.subscription_packets(mapping))
-        self.assertEqual(len(packets), 22)
+        self.assertEqual(len(packets), 40)
         for expected, data in zip(mapping, packets):
             reader = asyncio.StreamReader()
             reader.feed_data(data)

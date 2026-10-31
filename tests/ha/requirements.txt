@@ -1,0 +1,5 @@
+# Verified against primary PyPI metadata on 2026-10-31:
+# https://pypi.org/project/pytest-homeassistant-custom-component/0.13.375/
+# Package targets Home Assistant 2026.10.4 and requires Python >=3.14.
+homeassistant==2026.10.4
+pytest-homeassistant-custom-component==0.13.375
