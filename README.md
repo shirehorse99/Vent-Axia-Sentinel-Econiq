@@ -1,6 +1,6 @@
 # Vent-Axia Sentinel Econiq — read-only Home Assistant integration
 
-Experimental HACS candidate, version 0.1.0. Prepared for [shirehorse99/Vent-Axia-Sentinel-Econiq](https://github.com/shirehorse99/Vent-Axia-Sentinel-Econiq).
+Experimental HACS candidate, version 0.2.0. Prepared for [shirehorse99/Vent-Axia-Sentinel-Econiq](https://github.com/shirehorse99/Vent-Axia-Sentinel-Econiq).
 
 This connects directly to the unit’s built-in MQTT broker using its saved TLS-PSK credentials. It requires no external MQTT broker, external temperature sensor, cloud account or subscription. It exposes sensors and telemetry connectivity only.
 
@@ -20,9 +20,17 @@ Configure the unit hostname/IP, TLS port (normally 8883), device ID/topic prefix
 
 **Stop the previous add-on/integration before completing setup.** The form requires acknowledgement. Setup validates the format locally; saving starts the live connection. It does not discover credentials, pair Bluetooth, change a PIN, upload firmware or configure Wi-Fi.
 
+## Portable dashboard and connection guide
+
+The [connection and credential guide](docs/setup.md) explains which details come from the unit label, app and router, how to use credentials already saved by a paired app, and the limits of the supported iPhone backup recovery tool. No physical access or re-pairing is required by the integration itself, but an existing working app pairing is required to obtain saved credentials. Do not post credentials or phone backups in issues.
+
+The [portable dashboard guide](docs/dashboard.md) provides a registry-based strategy with Overview, Statistics, Diagnostics and Maintenance tabs. It resolves renamed entities and multiple compatible units without personal entity IDs, addresses or recorded baselines. It includes locally calculated recovery statistics with one-minute sampling and 24-hour persistence; these calculations send no additional requests to the unit.
+
+Additional reported data includes bypass position/mode, frost state, air-quality state, motor power in W, motor/unit runtimes in hours, filter types and maintenance dates, service interval in months, model metadata and Wi-Fi firmware. Missing values remain unavailable. The filter-interval unit and raw frost power/usage units are not yet verified.
+
 ## Data and traffic
 
-There are 22 exact telemetry subscriptions, sent once per connection. There are no wildcard or control topics. The unit pushes sensor readings; this integration does not poll them or set their publication rate. Disabling an entity hides it in HA but does not currently remove its subscription.
+There are 40 exact telemetry subscriptions, sent once per connection. There are no wildcard or control topics. The unit pushes sensor readings; this integration does not poll them or set their publication rate. Disabling an entity hides it in HA but does not currently remove its subscription.
 
 MQTT CONNECT advertises a 60-second keepalive. A two-byte PINGREQ is sent every 45 seconds, allowing a 10-second reply timeout. Its PINGRESP is also two bytes; TLS/TCP/Wi-Fi add overhead. Unchanged numeric readings are not needlessly republished to HA, and the last-telemetry timestamp is updated at most once per 30 seconds on real valid readings. Network failures retry after 30 seconds. Authentication/TLS failures stop rather than guess keys; incompatible protocol responses also stop.
 
@@ -50,7 +58,7 @@ Optional energy estimates can use HA’s Integral helper on the reported W senso
 
 ## Development and release checks
 
-Run `python -B -m unittest discover -s tests` for eleven isolated protocol and coordinator-lifecycle checks (the latter use HA stubs). Tests use synthetic payloads and fake streams; they do not connect to a unit. CI also includes HACS validation and hassfest. GitHub Actions passes the eleven protocol/lifecycle tests, hassfest and HACS validation. The repository has not been submitted to the HACS default catalogue. A real HA setup, reauthentication and unload test is required before describing this candidate as release-validated.
+Run `python -B -m unittest discover -s tests` for isolated protocol, recovery-statistics, credential-recovery and coordinator-lifecycle checks (the latter use HA stubs). Tests use synthetic payloads and fake streams; they do not connect to a unit. Run `node tests/test_dashboard.cjs` for portable dashboard fixtures. CI also runs actual Home Assistant setup/unload smoke tests using synthetic readings, HACS validation and hassfest. The repository has not been submitted to the HACS default catalogue. A real HA setup, reauthentication and unload test is required before describing this candidate as release-validated.
 
 To remove it, delete its config entry, then remove the repository using HACS and restart Home Assistant. Unloading cancels the background task and closes the MQTT socket; it does not change the MVHR’s operating settings.
 

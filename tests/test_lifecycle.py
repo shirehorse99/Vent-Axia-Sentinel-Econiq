@@ -20,13 +20,24 @@ class FakeDataCoordinator:
 
 stubs = {name: types.ModuleType(name) for name in (
     'homeassistant', 'homeassistant.config_entries', 'homeassistant.const',
-    'homeassistant.core', 'homeassistant.helpers', 'homeassistant.helpers.update_coordinator',
+    'homeassistant.core', 'homeassistant.helpers', 'homeassistant.helpers.event', 'homeassistant.helpers.storage', 'homeassistant.helpers.update_coordinator',
 )}
 stubs['homeassistant.config_entries'].ConfigEntry = object
 stubs['homeassistant.core'].HomeAssistant = object
 for key in ('HOST','PORT','USERNAME','PASSWORD'):
     setattr(stubs['homeassistant.const'], 'CONF_'+key, key.lower())
 stubs['homeassistant.helpers.update_coordinator'].DataUpdateCoordinator = FakeDataCoordinator
+class FakeStore:
+    def __init__(self, *args):
+        pass
+    async def async_load(self):
+        return None
+    async def async_save(self, data):
+        self.saved = data
+    def async_delay_save(self, callback, delay):
+        self.saved = callback()
+stubs['homeassistant.helpers.storage'].Store = FakeStore
+stubs['homeassistant.helpers.event'].async_track_time_interval = lambda *args: lambda: None
 with patch.dict(sys.modules, stubs):
     m = importlib.import_module('_econiq_candidate.coordinator')
     p = importlib.import_module('_econiq_candidate.protocol')
@@ -36,6 +47,7 @@ class Hass:
         return function(*args)
 
 class Entry:
+    entry_id = "synthetic-entry"
     data = {'device_id':'synthetic', 'host':'unused', 'port':8883,
             'tls_identity':'synthetic-identity', 'tls_psk_hex':'0123456789abcdef'}
     reauths = 0
@@ -87,7 +99,7 @@ class LifecycleTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(writer.closed)
         self.assertIsNone(coordinator._wire)
         self.assertFalse(coordinator.connected)
-        self.assertEqual(sum(data[0]>>4 == 8 for data in writer.packets), 22)
+        self.assertEqual(sum(data[0]>>4 == 8 for data in writer.packets), 40)
         self.assertTrue(all(data[0]>>4 in p.DEVICE_OUTBOUND for data in writer.packets))
         self.assertEqual(writer.packets[-1], b'\xe0\0')
         workers = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()
