@@ -43,6 +43,10 @@ def config_entry(hass, entry_data):
 @pytest.fixture(autouse=True)
 def isolated_device_worker(monkeypatch):
     """Exercise lifecycle cancellation without any connection, TLS or MQTT IO."""
+    import custom_components
+    component_root = str(Path(__file__).resolve().parents[2] / "custom_components")
+    if component_root not in custom_components.__path__:
+        custom_components.__path__.append(component_root)
     from custom_components.ventaxia_econiq_readonly import coordinator
     started, stopped = [], []
 
