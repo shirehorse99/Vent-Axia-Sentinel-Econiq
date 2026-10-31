@@ -11,7 +11,7 @@ from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.storage import Store
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 
 DOMAIN = 'ventaxia_econiq_readonly'
 pytestmark = pytest.mark.asyncio
@@ -91,8 +91,9 @@ async def test_per_device_recovery_and_store_roundtrip(hass, config_entry, entry
     first.values.update(outdoor_temperature=0, supply_temperature=15,
                         indoor_temperature=20, supply_rpm=1000, extract_rpm=900)
     now = datetime.now(timezone.utc)
-    first._sample_recovery(now)
+    async_fire_time_changed(hass, now)
     await hass.async_block_till_done()
+    assert first.recovery.stats(now)['recovery_samples_24h'] >= 1
     ratio_id = entity_id(hass, config_entry.data['device_id'], 'recovery_ratio')
     assert float(hass.states.get(ratio_id).state) == 75
     second_ratio = hass.states.get(entity_id(hass, 'SYNTHETIC-TWO','recovery_ratio'))

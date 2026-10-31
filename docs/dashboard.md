@@ -65,7 +65,7 @@ Power integration is an estimate affected by unavailable periods, reporting cade
 
 ## Validation status
 
-Offline Node tests cover native/legacy registry fixtures, renamed entity IDs, multiple devices, explicit selection, missing entities/devices, disabled entities, registry errors and absence of control actions. Real Home Assistant rendering and native integration operation still require an installation trial; passing these tests does not establish device compatibility or browser rendering on every HA version.
+Offline Node tests cover native/legacy registry fixtures, renamed entity IDs, multiple devices, explicit selection, missing entities/devices, disabled entities, registry errors and absence of control actions. The four generated tabs have also been rendered against an existing read-only MQTT bridge in Home Assistant. Native platform setup/unload and persisted statistics pass synthetic Home Assistant 2026.10.4 smoke tests in CI. An actual native connection trial on further controller models remains necessary; these checks do not establish compatibility or rendering on every HA version.
 
 Run the offline fixture suite from the repository root:
 

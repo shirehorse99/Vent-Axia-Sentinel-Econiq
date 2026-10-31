@@ -28,12 +28,12 @@
     ...Object.fromEntries(ROLLING.map(key => [key, `sensor.mvhr_${key}`])),
     recovery_oldest_sample:'sensor.mvhr_recovery_oldest_sample_24h',
   };
-  const LABELS = {internal_humidity:'Intake humidity', external_humidity:'Extract humidity',
+  const LABELS = {co2:'CO₂', supply_rpm:'Supply fan speed', extract_rpm:'Extract fan speed', wifi_signal:'Wi-Fi signal', internal_humidity:'Intake humidity', external_humidity:'Extract humidity',
     recovery_ratio:'Apparent temperature recovery', temperature_lift:'Supply temperature lift',
-    supply_airflow:'Supply demanded airflow — unit unverified',
-    extract_airflow:'Extract demanded airflow — unit unverified',
-    supply_measured_airflow:'Supply measured airflow — unit unverified',
-    extract_measured_airflow:'Extract measured airflow — unit unverified',
+    supply_airflow:'Supply demand (raw)',
+    extract_airflow:'Extract demand (raw)',
+    supply_measured_airflow:'Supply measured (raw)',
+    extract_measured_airflow:'Extract measured (raw)',
     supply_motor_power:'Supply motor power',
     extract_motor_power:'Extract motor power',
     energy_today:'Electrical energy today', energy_month:'Electrical energy this month'};
@@ -82,7 +82,7 @@
     };
     const title = unit.device.name_by_user || unit.device.name || 'Ventilation unit';
     const view = (name, cards, icon) => ({title:showUnit ? `${title} · ${name}` : name,
-      path:showUnit ? `${unit.device.id}-${name.toLowerCase()}` : name.toLowerCase(), icon, cards});
+      path:showUnit ? `${unit.device.id}-${name.toLowerCase()}` : name.toLowerCase(), cards});
     const statsNote = unit.legacy
       ? 'Legacy helpers are shown only when exactly one compatible unit exists. Their windows and sampling depend on the helper configuration; history is not migrated. Any sample-span coverage below is approximate, not elapsed-time availability.'
       : 'Native statistics use one-minute samples. Means are means of minute samples; median, standard deviation and percentiles use those samples. P10/P90 remain unavailable below 20 valid samples. Rolling coverage describes sample coverage, not certified performance.';
@@ -95,10 +95,10 @@
       view('Overview', [
         note('## Ventilation telemetry\nReported states and measurements only. Missing or unavailable data does not prove that hardware is off or fault-free.'),
         group('Current operation', ['connection','airflow_preset','override','regulation','bypass_status','frost_status','air_quality']),
-        group('Temperatures and humidity', ['outdoor_temperature','supply_temperature','indoor_temperature','internal_humidity','external_humidity','co2']),
+        group('Temperatures', ['outdoor_temperature','supply_temperature','indoor_temperature','internal_humidity','external_humidity','co2']),
         graph('Temperature history', ['outdoor_temperature','supply_temperature','indoor_temperature']),
-        group('Fans and electrical readings', ['supply_rpm','extract_rpm','system_power','supply_motor_power','extract_motor_power','energy_today','energy_month']),
-        group('Airflow readings', ['supply_airflow','extract_airflow','supply_measured_airflow','extract_measured_airflow']),
+        group('Fans and power', ['supply_rpm','extract_rpm','system_power','supply_motor_power','extract_motor_power','energy_today','energy_month']),
+        group('Airflow · unverified units', ['supply_airflow','extract_airflow','supply_measured_airflow','extract_measured_airflow']),
       ], 'mdi:fan'),
       view('Statistics', [
         note('## Apparent temperature recovery\n100 × (supply − outdoor) / (extract − outdoor). The calculation requires |extract − outdoor| ≥ 3 K and valid inputs. It is not certified heat-exchanger efficiency. Interpret alongside reported bypass/frost status; unavailable status does not establish bypass closure. No recovered W or kWh is calculated while airflow units remain unverified.'),
