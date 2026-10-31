@@ -24,6 +24,7 @@ stubs = {name: types.ModuleType(name) for name in (
 )}
 stubs['homeassistant.config_entries'].ConfigEntry = object
 stubs['homeassistant.core'].HomeAssistant = object
+stubs['homeassistant.core'].callback = lambda fn: fn
 for key in ('HOST','PORT','USERNAME','PASSWORD'):
     setattr(stubs['homeassistant.const'], 'CONF_'+key, key.lower())
 stubs['homeassistant.helpers.update_coordinator'].DataUpdateCoordinator = FakeDataCoordinator

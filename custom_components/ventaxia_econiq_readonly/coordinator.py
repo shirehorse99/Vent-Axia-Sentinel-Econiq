@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_USERNAME, CONF_PASSWORD
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.storage import Store
@@ -85,6 +85,7 @@ class EconiqCoordinator(DataUpdateCoordinator):
         saved = await self._store.async_load()
         self.recovery.restore(saved, datetime.now(timezone.utc))
 
+    @callback
     def _sample_recovery(self, now):
         self.recovery.sample(now, self.values, self.connected)
         if time.monotonic() - self._last_statistics_save >= 300:
@@ -182,6 +183,9 @@ class EconiqCoordinator(DataUpdateCoordinator):
             DEVICE_OUTBOUND, tls=tls,
         )
         self._wire = wire
+        # A new session must earn fresh readings, including statistical inputs.
+        self.values.clear()
+        self.attributes.clear()
         self._last_wire_sent = 0
         self._last_wire_received = 0
         workers = []

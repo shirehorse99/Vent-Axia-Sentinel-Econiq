@@ -6,7 +6,7 @@ This connects directly to the unit’s built-in MQTT broker using its saved TLS-
 
 ## Compatibility
 
-The telemetry protocol and authentication were verified on a Sentinel Econiq controller using the standalone bridge. Repository CI checks pass. The native HACS wrapper still needs an actual Home Assistant load/unload trial before a release. The live standalone bridge is a separate deployment.
+The telemetry protocol and authentication were verified on a Sentinel Econiq controller using the standalone bridge. CI includes passing Home Assistant 2026.10.4 setup/unload and statistics-persistence tests with synthetic data, plus isolated tests, HACS validation and hassfest. The portable dashboard has been checked live against the standalone bridge. A native connection trial on physical hardware remains separate from these checks.
 
 This is **not universal support for every Vent-Axia model**. Legacy Kinetic Advance Wi-Fi modules can use a different raw JSON protocol. An enclosure’s original model name does not establish controller compatibility. Missing CO₂ or filter-life readings are not fabricated; those entities are disabled by default.
 
@@ -58,7 +58,7 @@ Optional energy estimates can use HA’s Integral helper on the reported W senso
 
 ## Development and release checks
 
-Run `python -B -m unittest discover -s tests` for isolated protocol, recovery-statistics, credential-recovery and coordinator-lifecycle checks (the latter use HA stubs). Tests use synthetic payloads and fake streams; they do not connect to a unit. Run `node tests/test_dashboard.cjs` for portable dashboard fixtures. CI also runs actual Home Assistant setup/unload smoke tests using synthetic readings, HACS validation and hassfest. The repository has not been submitted to the HACS default catalogue. A real HA setup, reauthentication and unload test is required before describing this candidate as release-validated.
+Run `python -B -m unittest discover -s tests` for isolated protocol, recovery-statistics, credential-recovery and coordinator-lifecycle checks (the latter use HA stubs). Tests use synthetic payloads and fake streams; they do not connect to a unit. Run `node tests/test_dashboard.cjs` for portable dashboard fixtures. CI also runs actual Home Assistant setup/unload smoke tests using synthetic readings, HACS validation and hassfest. The repository has not been submitted to the HACS default catalogue. A native hardware connection and reauthentication trial is required before describing this candidate as release-validated.
 
 To remove it, delete its config entry, then remove the repository using HACS and restart Home Assistant. Unloading cancels the background task and closes the MQTT socket; it does not change the MVHR’s operating settings.
 
