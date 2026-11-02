@@ -50,6 +50,10 @@ No board/CPU temperature endpoint has been verified. Air-stream temperatures and
 
 Vent-Axia publishes a +40°C maximum ambient operating temperature for the Econiq range in its [specification brochure](https://www.vent-axia.com/sites/default/files/2024-02/vent-axia_specification_brochure..pdf). Confirm the applicable limit for any replacement board and installation with the manufacturer. Reducing network traffic does not make an excessive attic temperature acceptable.
 
+## Existing standalone bridge
+
+The optional [legacy bridge source and restoration notes](legacy_bridge/README.md) preserve that separate deployment. Version 0.4.2 corrects missing states after HA resubscriptions by retaining states/attributes on the local broker and invalidating caches at each new device session. This adds no device requests. New HACS users do not need this bridge or an external MQTT broker.
+
 ## Migration and energy
 
 Keep the current working bridge until this candidate has passed validation. To trial the native integration, stop that bridge first. New native entities have different identities from the MQTT entities; history does not automatically migrate. Update dashboards, energy helpers and alerts to the new entity IDs only after confirming their readings. Do not delete old history as part of the trial.
