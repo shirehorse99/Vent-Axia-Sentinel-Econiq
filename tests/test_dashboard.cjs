@@ -5,7 +5,10 @@ const path = require('node:path');
 const vm = require('node:vm');
 const source = fs.readFileSync(path.join(__dirname,'../custom_components/ventaxia_econiq_readonly/frontend/dashboard.js'),'utf8');
 const elements = new Map();
-vm.runInNewContext(source, {HTMLElement:class {}, customElements:{get:k=>elements.get(k),define:(k,v)=>elements.set(k,v)}});
+const analytics = {};
+const testableSource = source.replace("  if (!customElements.get('ventaxia-econiq-analytics'))",
+  "  Object.assign(analytics, {minuteHistory, energy});\n  if (!customElements.get('ventaxia-econiq-analytics'))");
+vm.runInNewContext(testableSource, {analytics, HTMLElement:class {}, customElements:{get:k=>elements.get(k),define:(k,v)=>elements.set(k,v)}});
 const strategy = elements.get('ll-strategy-dashboard-ventaxia-econiq');
 const device = (id,unit,legacy=false) => ({id,name:'Synthetic ventilation',identifiers:[[legacy?'mqtt':'ventaxia_econiq_readonly',legacy?`ventaxia_readonly_${unit}`:unit]]});
 const entity = (device,key,id,legacy=false) => ({device_id:device.id,entity_id:id,
@@ -22,6 +25,23 @@ function assertSafe(config) {
   for (const forbidden of ['call-service','perform-action','button','thermostat','command_topic','192.168.']) assert.ok(!serialized.includes(forbidden),forbidden);
   for (const ref of references(config)) assert.match(ref,/^(sensor|binary_sensor)\./);
 }
+// Compressed Recorder history: only the first three minute midpoints have fresh data.
+const start = Date.UTC(2026, 0, 1), minute = 60000;
+const sample = value => [{s:value, lu:start/1000}];
+const inputs = {
+  connection:sample('on'), last_reading:sample(new Date(start).toISOString()),
+  airflow_preset:[...sample('Normal'),{s:'Unmapped preset',lu:(start+minute)/1000}],
+  system_power:sample('60'), outdoor_temperature:sample('10'), supply_temperature:sample('18'),
+  indoor_temperature:sample('20'), supply_rpm:sample('700'), extract_rpm:sample('650'),
+};
+const ids = Object.fromEntries(Object.keys(inputs).map(k=>[k,k]));
+const samples = analytics.minuteHistory(inputs, ids, start, start+5*minute, 'UTC');
+assert.deepEqual(Array.from(samples, r=>r.ratio), [80,80,80,null,null]);
+assert.match(analytics.energy(samples), /Normal · 0.001 kWh · 3\/5 observed minutes/);
+assert.match(analytics.energy(samples), /Unknown · 0.002 kWh · 3\/5 observed minutes/);
+inputs.connection.push({s:'off',lu:(start+minute)/1000});
+assert.deepEqual(Array.from(analytics.minuteHistory(inputs, ids, start, start+5*minute, 'UTC'), r=>r.power), [60,null,null,null,null]);
+
 (async()=>{
   const native=device('ha-a','SYNTH-A');
   const registry=[entity(native,'supply_temperature','sensor.renamed_temperature'),entity(native,'recovery_ratio','sensor.custom_ratio'),entity(native,'connection','binary_sensor.telemetry'),entity(native,'model_details','sensor.model')];
