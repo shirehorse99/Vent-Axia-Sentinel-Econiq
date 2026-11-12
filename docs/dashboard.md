@@ -49,6 +49,8 @@ The card samples recorded states once per minute and excludes disconnected perio
 
 No recovered thermal W or kWh is computed because installed airflow units/scaling have not been verified. Raw airflow and frost attributes with unverified units are labelled accordingly. Individual motor electrical power is reported in W. System electrical power, where reported with verified W units, is a different quantity from recovered heat.
 
+The [Vent-Axia Sentinel Econiq specification](https://www.vent-axia.com/sites/default/files/2024-02/Vent-Axia_Ventilation_for_New_Build_Construction.pdf) lists thermal efficiency of up to 93% for the product range. That is a published product rating. The dashboard uses each installation’s recorded temperatures for its apparent recovery calculation. Manufacturer ratings and maximum airflow specifications are reference figures; estimating recovered heat requires verified airflow for the installed system.
+
 ## Existing MQTT bridge compatibility
 
 The strategy also recognizes devices created by the existing read-only bridge with identifier `ventaxia_readonly_<unitID>` and corresponding entity unique IDs. Keep the bridge installed if you are using those entities; displaying them does not migrate them to the native integration.
