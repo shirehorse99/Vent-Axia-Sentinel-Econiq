@@ -7,9 +7,10 @@ After the integration is configured, add its bundled module under **Settings →
 - URL: `/ventaxia_econiq_readonly/dashboard.js?v=0.2.0`
 - Resource type: **JavaScript module**
 
-Reload the browser. Create a separate dashboard and put this in its raw configuration:
+Reload the browser. Under **Settings → Dashboards**, create a separate dashboard from scratch. Open it, enter edit mode, and choose **Raw configuration editor** from the three-dot menu. Paste this configuration and save it:
 
 ```yaml
+title: MVHR
 strategy:
   type: custom:ventaxia-econiq
 ```
@@ -19,6 +20,7 @@ Do not replace a dashboard you want to keep. The strategy generates its own view
 To restrict this dashboard to one device, use that device's **Home Assistant registry UUID**, available in its device-page URL:
 
 ```yaml
+title: MVHR
 strategy:
   type: custom:ventaxia-econiq
   device_id: YOUR_HOME_ASSISTANT_DEVICE_UUID

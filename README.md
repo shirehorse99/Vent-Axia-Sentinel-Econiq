@@ -6,13 +6,13 @@ This connects directly to the unit’s built-in MQTT broker using its saved TLS-
 
 ## Compatibility
 
-The telemetry protocol and authentication were verified on a Sentinel Econiq controller using the standalone bridge. CI includes passing Home Assistant 2026.10.4 setup/unload and statistics-persistence tests with synthetic data, plus isolated tests, HACS validation and hassfest. The portable dashboard has been checked live against the standalone bridge. A native connection trial on physical hardware remains separate from these checks.
+The telemetry protocol and authentication were verified on one Sentinel Econiq controller using the standalone bridge. The portable dashboard was also checked against that bridge. CI covers native Home Assistant setup, unload and statistics persistence with synthetic data. The native integration still needs an end-to-end hardware trial.
 
 This is **not universal support for every Vent-Axia model**. Legacy Kinetic Advance Wi-Fi modules can use a different raw JSON protocol. An enclosure’s original model name does not establish controller compatibility. Missing CO₂ or filter-life readings are not fabricated; those entities are disabled by default.
 
 ## Installation
 
-For a custom-repository trial, add this repository’s URL in HACS → Custom repositories, category Integration. Download it, restart Home Assistant, then add “Vent-Axia Sentinel Econiq (read only)” under Settings → Devices & services.
+Follow the [setup guide](docs/setup.md) to gather the connection details before installing. In HACS, add this repository under **Custom repositories** with type **Integration**, download it, and restart Home Assistant. Then add **Vent-Axia Sentinel Econiq (read only)** under **Settings → Devices & services**.
 
 Manual installation: copy `custom_components/ventaxia_econiq_readonly` into Home Assistant’s `custom_components` directory and restart Home Assistant. Home Assistant 2025.2 or later is required, with Python 3.13+ and a PSK-enabled OpenSSL build. The configuration form checks the PSK capability without contacting the unit.
 
@@ -64,7 +64,7 @@ Optional energy estimates can use HA’s Integral helper on the reported W senso
 
 Run `python -B -m unittest discover -s tests` for isolated protocol, recovery-statistics, credential-recovery and coordinator-lifecycle checks (the latter use HA stubs). Tests use synthetic payloads and fake streams; they do not connect to a unit. Run `node tests/test_dashboard.cjs` for portable dashboard fixtures. CI also runs actual Home Assistant setup/unload smoke tests using synthetic readings, HACS validation and hassfest. The repository has not been submitted to the HACS default catalogue. A native hardware connection and reauthentication trial is required before describing this candidate as release-validated.
 
-To remove it, delete its config entry, then remove the repository using HACS and restart Home Assistant. Unloading cancels the background task and closes the MQTT socket; it does not change the MVHR’s operating settings.
+To remove it, delete its config entry, then remove the downloaded integration using HACS and restart Home Assistant. For a manual install, remove its directory from `custom_components` before restarting. Unloading cancels the background task and closes the MQTT socket; it does not change the MVHR’s operating settings.
 
 ## Acknowledgements
 
